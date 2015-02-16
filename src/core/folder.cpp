@@ -304,6 +304,7 @@ void Loader::FolderInformation::Scan(const Journal& journal)
  */
 void Loader::FolderInformation::Update()
 {
+    Updating xup;
     if(this->status != Status::Unchanged)
     {
         Updating xup;

@@ -240,22 +240,33 @@ void Loader::Tick()
  */
 void Loader::TestHotkeys()
 {
-    if(false)   // Unecessary, we got a menu and we got a automatic refresher
+    if(true)
     {
-        static bool prevF4 = false; 
-        static bool currF4 = false; 
+        static bool prev[10] = {};
+        static bool curr[10] = {};
+        
+        static bool has_switched = false;
 
-        // Get current hotkey states
-        currF4 = (GetKeyState(vkRefresh) & 0x8000) != 0;
-
-        // Check hotkey states
-        if(currF4 && !prevF4)
+        for(int i = 0; i < 10; ++i)
         {
-            this->ScanAndUpdate();
-        }
+            curr[i] = (GetKeyState(0x30 + i) & 0x8000) != 0;
+            if(curr[i] && !prev[i])
+            {
+                if(!has_switched)
+                {
+                    has_switched = true;
+                    this->mods.SwitchToProfileAsAnonymous(this->mods.Profile());
+                }
+                auto name = std::string("mod_") + std::to_string(i);
+                if(this->mods.Profile().IsIgnored(name))
+                    this->mods.Profile().UnignoreMod(name);
+                else
+                    this->mods.Profile().IgnoreMod(name);
 
-        // Save previous states
-        prevF4 = currF4;
+                this->UpdateFromJournal({{name, Status::Updated}});
+            }
+            prev[i] = curr[i];
+        }
     }
 }
 
